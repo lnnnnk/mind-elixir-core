@@ -1,11 +1,9 @@
-import type { MindElixirCtor } from './index'
-import MindElixir from './index'
 import example from './exampleData/1'
-import example2 from './exampleData/2'
-import example3 from './exampleData/3'
-import type { Options, MindElixirData, MindElixirInstance } from './types/index'
+import type { MindElixirCtor, Topic } from './index'
+import MindElixir from './index'
+import { Actions } from './types/contextmenu'
+import type { MindElixirInstance, Options } from './types/index'
 import type { Operation } from './utils/pubsub'
-import { exportPng } from './plugin/exportImage'
 
 interface Window {
   m: MindElixirInstance
@@ -25,19 +23,23 @@ const options: Options = {
   locale: 'en',
   draggable: true,
   editable: true,
-  contextMenu: true,
-  contextMenuOption: {
-    focus: true,
-    link: true,
-    extend: [
-      {
-        name: 'Node edit',
-        onclick: () => {
-          alert('extend menu')
-        },
+  contextMenu: [
+    Actions.ADD_CHILD,
+    Actions.REMOVE_NODE,
+    Actions.ADD_SIBLING,
+    {
+      key: 'addLeaf',
+      name: '添加叶子节点',
+      onClick: mind => {
+        mind.addChild(mind.currentNode as Topic, {
+          topic: 'Add Leaf',
+          id: `${Math.random()}`,
+          isLeaf: true,
+          tags: ['leaf'],
+        })
       },
-    ],
-  },
+    },
+  ],
   mobileMenu: true,
   toolBar: true,
   nodeMenu: true,
@@ -71,6 +73,7 @@ const m2 = new MindElixir({
 })
 m2.init(data)
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function sleep() {
   return new Promise<void>(res => {
     setTimeout(() => res(), 1000)

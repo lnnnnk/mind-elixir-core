@@ -1,12 +1,14 @@
-import type Bus from '../utils/pubsub'
-import type { Topic, CustomSvg } from './dom'
-import type { EventMap, Operation } from '../utils/pubsub'
-import type { MindElixirMethods, OperationMap, Operations } from '../methods'
-import type { LinkDragMoveHelperInstance } from '../utils/LinkDragMoveHelper'
-import type { LinkItem } from '../customLink'
-import type { Summary, SummarySvgGroup } from '../summary'
 import type SelectionArea from '@viselect/vanilla'
+import type { LinkItem } from '../customLink'
+import type { MindElixirMethods, OperationMap, Operations } from '../methods'
+import type { Summary, SummarySvgGroup } from '../summary'
+import type { LinkDragMoveHelperInstance } from '../utils/LinkDragMoveHelper'
+import type Bus from '../utils/pubsub'
+import type { EventMap, Operation } from '../utils/pubsub'
+import type { Actions, ContextMenuItem } from './contextmenu'
+import type { CustomSvg, Topic } from './dom'
 export * from '../methods'
+export * from './contextmenu'
 
 type Before = Partial<{
   [K in Operations]: (...args: Parameters<OperationMap[K]>) => Promise<boolean> | boolean
@@ -60,8 +62,7 @@ export interface MindElixirInstance extends MindElixirMethods {
   locale: string
   draggable: boolean
   editable: boolean
-  contextMenu: boolean
-  contextMenuOption: object
+  contextMenu: Array<ContextMenuItem | Actions>
   toolBar: boolean
   keypress: boolean
   mouseSelectionButton: 0 | 2
@@ -113,8 +114,7 @@ export interface Options {
   locale?: string
   draggable?: boolean
   editable?: boolean
-  contextMenu?: boolean
-  contextMenuOption?: any
+  contextMenu?: Array<ContextMenuItem | Actions>
   toolBar?: boolean
   keypress?: boolean
   mouseSelectionButton?: 0 | 2
@@ -151,7 +151,8 @@ export interface NodeObj {
   hyperLink?: string
   expanded?: boolean
   direction?: number
-  root?: boolean
+  isLeaf?: boolean
+  isRoot?: boolean
   image?: {
     url: string
     width: number

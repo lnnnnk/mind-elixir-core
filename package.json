@@ -1,13 +1,15 @@
 {
-  "name": "mind-elixir",
-  "version": "3.3.2",
+  "name": "@lnks/mind-elixir",
+  "version": "1.0.0",
   "type": "module",
-  "description": "Mind elixir is a free open source mind map core.",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "description": "A copy of mind-elixir",
   "keywords": [
     "mind-elixir",
-    "mindmap",
-    "dom",
-    "visualization"
+    "mindmap"
   ],
   "scripts": {
     "prepare": "husky install",

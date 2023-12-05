@@ -1,112 +1,53 @@
+import { actionMapping } from '../const'
 import i18n from '../i18n'
+import type { ContextMenuItem } from '../types/contextmenu'
+import { Actions } from '../types/contextmenu'
 import type { Topic } from '../types/dom'
-import type { MindElixirInstance } from '../types/index'
-import { encodeHTML, isTopic } from '../utils/index'
+import { type MindElixirInstance } from '../types/index'
 import dragMoveHelper from '../utils/dragMoveHelper'
+import { encodeHTML, isActionEnum, isCtxMenuItem, isTopic } from '../utils/index'
 import './contextMenu.less'
 
-export default function (mind: MindElixirInstance, option: any) {
-  const createTips = (words: string) => {
-    const div = document.createElement('div')
-    div.innerText = words
-    div.className = 'tips'
-    return div
-  }
-  const createLi = (id: string, name: string, keyname: string) => {
-    const li = document.createElement('li')
-    li.id = id
-    li.innerHTML = `<span>${encodeHTML(name)}</span><span>${encodeHTML(keyname)}</span>`
-    return li
-  }
-  const locale = i18n[mind.locale] ? mind.locale : 'en'
-  const lang = i18n[locale]
-  const add_child = createLi('cm-add_child', lang.addChild, 'tab')
-  const add_parent = createLi('cm-add_parent', lang.addParent, '')
-  const add_sibling = createLi('cm-add_sibling', lang.addSibling, 'enter')
-  const remove_child = createLi('cm-remove_child', lang.removeNode, 'delete')
-  const focus = createLi('cm-fucus', lang.focus, '')
-  const unfocus = createLi('cm-unfucus', lang.cancelFocus, '')
-  const up = createLi('cm-up', lang.moveUp, 'PgUp')
-  const down = createLi('cm-down', lang.moveDown, 'Pgdn')
-  const link = createLi('cm-down', lang.link, '')
-  const summary = createLi('cm-down', lang.summary, '')
+export const defaultAction = {}
 
+const createLi = (id: string, name: string, keyname: string) => {
+  const li = document.createElement('li')
+  li.id = id
+  li.innerHTML = `<span>${encodeHTML(name)}</span><span>${encodeHTML(keyname)}</span>`
+  return li
+}
+
+const addChildEl = createLi('cm-addChild', i18n['cn'].addChild, 'tab')
+const removeNodeEl = createLi('cm-removeNode', i18n['cn'].removeNode, 'delete')
+type MenuItemCtx = { el: HTMLLIElement; item: ContextMenuItem }
+
+export default function (mind: MindElixirInstance, option: Array<ContextMenuItem | Actions>) {
+  const locale = i18n[mind.locale] ? mind.locale : 'cn'
+  const lang = i18n[locale]
+  const menuContainer = document.createElement('div')
   const menuUl = document.createElement('ul')
   menuUl.className = 'menu-list'
-  menuUl.appendChild(add_child)
-  menuUl.appendChild(remove_child)
-  if (option && option.ctxAddParent) {
-    menuUl.appendChild(add_parent)
-  }
-  if (option && option.ctxAddSibling) {
-    menuUl.appendChild(add_sibling)
-  }
-  if (!option || option.focus) {
-    menuUl.appendChild(focus)
-    menuUl.appendChild(unfocus)
-  }
-  if (!option || option.ctxUp) {
-    menuUl.appendChild(up)
-  }
-  if (option && option.ctxDown) {
-    menuUl.appendChild(down)
-  }
-  if (option && option.ctxDown) {
-    menuUl.appendChild(summary)
-  }
-  if (option && option.link) {
-    menuUl.appendChild(link)
-  }
-  if (option && option.extend) {
-    for (let i = 0; i < option.extend.length; i++) {
-      const item = option.extend[i]
-      const dom = createLi(item.name, item.name, item.key || '')
-      menuUl.appendChild(dom)
-      dom.onclick = e => {
-        item.onclick(e)
-      }
-    }
-  }
-  const menuContainer = document.createElement('div')
+  const elementSet = createMenu(mind, option, lang, menuContainer)
+  Object.values(elementSet).forEach(it => {
+    menuUl.appendChild(it.el)
+  })
   menuContainer.className = 'context-menu'
   menuContainer.appendChild(menuUl)
   menuContainer.hidden = true
 
   mind.container.append(menuContainer)
-  let isRoot = true
   mind.container.oncontextmenu = function (e) {
     e.preventDefault()
     if (!mind.editable) return
     // console.log(e.pageY, e.screenY, e.clientY)
     const target = e.target as HTMLElement
     if (isTopic(target)) {
-      if (target.parentElement.tagName === 'ME-ROOT') {
-        isRoot = true
-      } else {
-        isRoot = false
-      }
-      if (isRoot) {
-        focus.className = 'disabled'
-        up.className = 'disabled'
-        down.className = 'disabled'
-        add_parent.className = 'disabled'
-        add_sibling.className = 'disabled'
-        remove_child.className = 'disabled'
-      } else {
-        focus.className = ''
-        up.className = ''
-        down.className = ''
-        add_parent.className = ''
-        add_sibling.className = ''
-        remove_child.className = ''
-      }
+      hideMenuItems(target, elementSet)
       if (!mind.currentNodes) mind.selectNode(target)
       menuContainer.hidden = false
-
       if (dragMoveHelper.mousedown) {
         dragMoveHelper.mousedown = false
       }
-
       menuUl.style.top = ''
       menuUl.style.bottom = ''
       menuUl.style.left = ''
@@ -139,69 +80,38 @@ export default function (mind: MindElixirInstance, option: any) {
   menuContainer.onclick = e => {
     if (e.target === menuContainer) menuContainer.hidden = true
   }
+}
 
-  add_child.onclick = () => {
-    mind.addChild()
-    menuContainer.hidden = true
+const hideMenuItems = (target: Topic, ctxMenuItems: Record<string, MenuItemCtx>) => {
+  const node = target.nodeObj
+  const isRoot = node ? node.isRoot : target.parentElement.tagName === 'ME-ROOT'
+  ;(Object.values(ctxMenuItems) || []).forEach(it => {
+    it.el.className = (isRoot && !it.item.showInRoot) || (node.isLeaf && !it.item.showInLeaf) ? 'disabled' : ''
+  })
+  return
+}
+
+const createMenu: (
+  mind: MindElixirInstance,
+  option: Array<ContextMenuItem | Actions>,
+  lang: Record<string, string>,
+  menuContainer: HTMLDivElement
+) => Record<string, MenuItemCtx> = (mind, option, lang, menuContainer) => {
+  const elementSet: Record<string, { el: HTMLLIElement; item: ContextMenuItem }> = {}
+  const ctxMenuItems: Array<ContextMenuItem> = (option || [])
+    .filter(it => isActionEnum(it) || isCtxMenuItem(it))
+    .map(it => (isActionEnum(it) ? actionMapping[it as Actions] : it))
+  for (const item of ctxMenuItems) {
+    const el = createLi(`cm-${item.key}`, item.name || item.key, item.shortcut || '')
+    el.onclick = () => {
+      item.onClick(mind)
+      menuContainer.hidden = true
+    }
+    elementSet[item.key] = { item, el }
   }
-  add_parent.onclick = () => {
-    mind.insertParent()
-    menuContainer.hidden = true
+  if (Object.keys(elementSet).length === 0) {
+    elementSet[Actions.ADD_CHILD] = { el: addChildEl, item: actionMapping[Actions.ADD_CHILD] }
+    elementSet[Actions.REMOVE_NODE] = { el: removeNodeEl, item: actionMapping[Actions.REMOVE_NODE] }
   }
-  add_sibling.onclick = () => {
-    if (isRoot) return
-    mind.insertSibling()
-    menuContainer.hidden = true
-  }
-  remove_child.onclick = () => {
-    if (isRoot) return
-    mind.removeNode()
-    menuContainer.hidden = true
-  }
-  focus.onclick = () => {
-    if (isRoot) return
-    mind.focusNode(mind.currentNode as Topic)
-    menuContainer.hidden = true
-  }
-  unfocus.onclick = () => {
-    mind.cancelFocus()
-    menuContainer.hidden = true
-  }
-  up.onclick = () => {
-    if (isRoot) return
-    mind.moveUpNode()
-    menuContainer.hidden = true
-  }
-  down.onclick = () => {
-    if (isRoot) return
-    mind.moveDownNode()
-    menuContainer.hidden = true
-  }
-  link.onclick = () => {
-    menuContainer.hidden = true
-    const from = mind.currentNode as Topic
-    const tips = createTips(lang.clickTips)
-    mind.container.appendChild(tips)
-    mind.map.addEventListener(
-      'click',
-      e => {
-        e.preventDefault()
-        tips.remove()
-        const target = e.target as Topic
-        if (target.parentElement.tagName === 'ME-PARENT' || target.parentElement.tagName === 'ME-ROOT') {
-          mind.createLink(from, target)
-        } else {
-          console.log('link cancel')
-        }
-      },
-      {
-        once: true,
-      }
-    )
-  }
-  summary.onclick = () => {
-    menuContainer.hidden = true
-    mind.createSummary()
-    mind.unselectNodes()
-  }
+  return elementSet
 }

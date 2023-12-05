@@ -1,5 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import type { ContextMenuItem } from '../types/contextmenu'
+import { Actions } from '../types/contextmenu'
 import type { Topic } from '../types/dom'
-import type { NodeObj, MindElixirInstance, NodeObjExport } from '../types/index'
+import type { MindElixirInstance, NodeObj, NodeObjExport } from '../types/index'
 
 export function encodeHTML(s: string) {
   return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;')
@@ -144,4 +147,19 @@ export const unionTopics = (nodes: Topic[]) => {
     }
     return true
   })
+}
+
+export const createTips = (words: string) => {
+  const div = document.createElement('div')
+  div.innerText = words
+  div.className = 'tips'
+  return div
+}
+
+export const isActionEnum = (value: ContextMenuItem | Actions): value is Actions => {
+  return Object.values(Actions).includes(value as unknown as Actions)
+}
+
+export const isCtxMenuItem = (value: ContextMenuItem): value is ContextMenuItem => {
+  return 'key' in value && 'onClick' in value
 }

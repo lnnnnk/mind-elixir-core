@@ -24,7 +24,6 @@ function MindElixir(
     draggable,
     editable,
     contextMenu,
-    contextMenuOption,
     toolBar,
     keypress,
     mouseSelectionButton,
@@ -54,8 +53,7 @@ function MindElixir(
   this.mindElixirBox = ele as HTMLElement
   this.before = before || {}
   this.locale = locale || 'en'
-  this.contextMenuOption = contextMenuOption
-  this.contextMenu = contextMenu === undefined ? true : contextMenu
+  this.contextMenu = contextMenu === undefined ? [] : contextMenu
   this.toolBar = toolBar === undefined ? true : toolBar
   this.keypress = keypress === undefined ? true : keypress
   this.mouseSelectionButton = mouseSelectionButton || 0
@@ -152,7 +150,7 @@ if (import.meta.env.MODE !== 'lite') {
     nodeData: {
       id: generateUUID(),
       topic: topic || 'new topic',
-      root: true,
+      isRoot: true,
       children: [],
     },
     linkData: {},

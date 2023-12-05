@@ -1,6 +1,6 @@
-import MindElixir from 'mind-elixir'
-import example from 'mind-elixir/example'
-import type { Options } from 'mind-elixir'
+import type { Options } from '@lnks/mind-elixir'
+import MindElixir, { Actions } from '@lnks/mind-elixir'
+import example from '@lnks/mind-elixir/example'
 
 const E = MindElixir.E
 const options: Options = {
@@ -12,19 +12,7 @@ const options: Options = {
   locale: 'en',
   draggable: true,
   editable: true,
-  contextMenu: true,
-  contextMenuOption: {
-    focus: true,
-    link: true,
-    extend: [
-      {
-        name: 'Node edit',
-        onclick: () => {
-          alert('extend menu')
-        },
-      },
-    ],
-  },
+  contextMenu: [Actions.ADD_CHILD, Actions.REMOVE_NODE],
   toolBar: true,
   nodeMenu: true,
   keypress: true,

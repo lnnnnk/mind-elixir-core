@@ -1,7 +1,9 @@
+import type { Actions, ContextMenuItem } from '../types/contextmenu'
 import type { MindElixirInstance, NodeObj } from '../types/index'
 import './mobileMenu.less'
 
-export default function (mind: MindElixirInstance, option?: any) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export default function (mind: MindElixirInstance, option?: Array<ContextMenuItem | Actions>) {
   const createLi = (id: string, name: string) => {
     const div = document.createElement('div')
     div.id = id
@@ -26,16 +28,6 @@ export default function (mind: MindElixirInstance, option?: any) {
   // if (!option || option.link) {
   //   menuUl.appendChild(link)
   // }
-  if (option && option.extend) {
-    for (let i = 0; i < option.extend.length; i++) {
-      const item = option.extend[i]
-      const dom = createLi(item.name, item.name)
-      menuUl.appendChild(dom)
-      dom.onclick = e => {
-        item.onclick(e)
-      }
-    }
-  }
   const menuContainer = document.createElement('mmenu')
   menuContainer.className = 'mobile-menu'
   menuContainer.appendChild(add_child)
@@ -91,7 +83,7 @@ export default function (mind: MindElixirInstance, option?: any) {
   })
   mind.bus.addListener('selectNode', function (nodeObj: NodeObj) {
     menuContainer.hidden = false
-    if (nodeObj.root) {
+    if (nodeObj.isRoot) {
       isRoot = true
     } else {
       isRoot = false
@@ -121,15 +113,15 @@ export default function (mind: MindElixirInstance, option?: any) {
   //   mind.cancelFocus()
   //   menuContainer.hidden = true
   // }
-  up.onclick = e => {
+  up.onclick = () => {
     if (isRoot) return
     mind.moveUpNode()
   }
-  down.onclick = e => {
+  down.onclick = () => {
     if (isRoot) return
     mind.moveDownNode()
   }
-  edit.onclick = e => {
+  edit.onclick = () => {
     mind.beginEdit()
   }
   // link.onclick = e => {

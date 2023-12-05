@@ -61,10 +61,10 @@ export default function (mind: MindElixirInstance) {
       if (!mind.currentNode) return
       const nodeObj = mind.currentNode.nodeObj
       const main = mind.currentNode.offsetParent.offsetParent.parentElement
-      if (mind.currentNode.nodeObj.root) {
+      if (mind.currentNode.nodeObj.isRoot) {
         selectLeft(mind)
       } else if (main.className === 'rhs') {
-        if (nodeObj.parent?.root) {
+        if (nodeObj.parent?.isRoot) {
           selectRoot(mind)
         } else {
           mind.selectParent()
@@ -81,10 +81,10 @@ export default function (mind: MindElixirInstance) {
       if (!mind.currentNode) return
       const nodeObj = mind.currentNode.nodeObj
       const main = mind.currentNode.offsetParent.offsetParent.parentElement
-      if (nodeObj.root) {
+      if (nodeObj.isRoot) {
         selectRight(mind)
       } else if (main.className === 'lhs') {
-        if (nodeObj.parent?.root) {
+        if (nodeObj.parent?.isRoot) {
           selectRoot(mind)
         } else {
           mind.selectParent()

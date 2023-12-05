@@ -1,21 +1,21 @@
-import type { MindElixirInstance, MindElixirData } from './index'
+import * as customLink from './customLink'
+import type { MindElixirData, MindElixirInstance } from './index'
+import * as interact from './interact'
 import linkDiv from './linkDiv'
+import * as nodeOperation from './nodeOperation'
 import contextMenu from './plugin/contextMenu'
+import * as exportImage from './plugin/exportImage'
 import keypress from './plugin/keypress'
 import mobileMenu from './plugin/mobileMenu'
 import nodeDraggable from './plugin/nodeDraggable'
 import operationHistory from './plugin/operationHistory'
-import toolBar from './plugin/toolBar'
 import selection from './plugin/selection'
-import { editTopic, createWrapper, createParent, createChildren, createTopic, findEle } from './utils/dom'
-import { getObjById, generateNewObj, fillParent, isMobile } from './utils/index'
+import toolBar from './plugin/toolBar'
+import * as summaryOperation from './summary'
+import { createChildren, createParent, createTopic, createWrapper, editTopic, findEle } from './utils/dom'
+import { fillParent, generateNewObj, getObjById, isMobile } from './utils/index'
 import { layout } from './utils/layout'
 import changeTheme from './utils/theme'
-import * as interact from './interact'
-import * as nodeOperation from './nodeOperation'
-import * as customLink from './customLink'
-import * as summaryOperation from './summary'
-import * as exportImage from './plugin/exportImage'
 
 export type OperationMap = typeof nodeOperation
 export type Operations = keyof OperationMap
@@ -33,6 +33,7 @@ function beforeHook<T extends Operations>(
       const res = await hook.apply(this, args)
       if (!res) return
     }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(fn as any).apply(this, args)
   }
 }
@@ -92,7 +93,7 @@ const methods = {
       if (isMobile() && this.mobileMenu) {
         mobileMenu(this)
       } else {
-        this.contextMenu && contextMenu(this, this.contextMenuOption)
+        this.contextMenu && contextMenu(this, this.contextMenu)
       }
       this.draggable && nodeDraggable(this)
       this.allowUndo && operationHistory(this)

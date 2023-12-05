@@ -1,4 +1,4 @@
-type LangPack = {
+export type LangPack = {
   addChild: string
   addParent: string
   addSibling: string
@@ -24,7 +24,7 @@ const cn = {
   clickTips: '请点击目标节点',
   summary: '摘要',
 }
-const i18n: Record<string, LangPack> = {
+const i18n: Record<string, Record<string, string>> = {
   cn,
   zh_CN: cn,
   zh_TW: {

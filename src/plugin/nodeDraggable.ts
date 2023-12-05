@@ -33,7 +33,7 @@ const clearPreview = function (el: Element | null) {
 
 const canPreview = function (el: Element, dragged: Topic) {
   const isContain = dragged.parentElement.parentElement.contains(el)
-  return el && el.tagName === 'ME-TPC' && el !== dragged && !isContain && (el as Topic).nodeObj.root !== true
+  return el && el.tagName === 'ME-TPC' && el !== dragged && !isContain && (el as Topic).nodeObj.isRoot !== true
 }
 
 const createGhost = function (mei: MindElixirInstance) {
@@ -90,7 +90,7 @@ export default function (mind: MindElixirInstance) {
 
   mind.map.addEventListener(
     'dragover',
-    throttle(function (e: DragEvent) {
+    throttle((e: DragEvent) => {
       if (!dragged) return
       clearPreview(meet)
       // minus threshold infer that postion of the cursor is above topic
