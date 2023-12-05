@@ -48,8 +48,8 @@ const linkDiv = function (this: MindElixirInstance, mainNode?: Wrapper) {
     const tpc = el.querySelector<Topic>('me-tpc') as Topic
     const p = el.firstChild
     const direction = el.parentNode.className as 'lhs' | 'rhs'
-    let x1 = root.offsetLeft + root.offsetWidth / 2
-    const y1 = root.offsetTop + root.offsetHeight / 2
+    let x1 = root.offsetLeft
+    const y1 = root.offsetTop - root.offsetHeight / 2
 
     let x2
     const palette = this.theme.palette
@@ -57,9 +57,9 @@ const linkDiv = function (this: MindElixirInstance, mainNode?: Wrapper) {
 
     const { offsetLeft, offsetTop } = getOffsetLT(this.nodes, p)
     if (direction === 'lhs') {
-      x2 = offsetLeft + p.offsetWidth
-    } else {
       x2 = offsetLeft
+    } else {
+      x2 = offsetLeft + p.offsetWidth
     }
     const y2 = offsetTop + p.offsetHeight / 2
     let mainPath = ''
@@ -71,16 +71,39 @@ const linkDiv = function (this: MindElixirInstance, mainNode?: Wrapper) {
           x1 = x1 + root.offsetWidth / 6
         }
       }
-      mainPath = generateMainLine2({ x1, y1, x2, y2 })
+      // mainPath = generateMainLine2({ x1, y1, x2, y2 })
+      mainPath = generateSubLine2({
+        pT: y1,
+        pL: x1,
+        pW: root.offsetWidth,
+        pH: root.offsetHeight,
+        cT: offsetTop - 0.5,
+        cL: offsetLeft,
+        cW: p.offsetWidth,
+        cH: p.offsetHeight,
+        direction,
+        isFirst: false,
+      })
     } else {
       const pct = Math.abs(y2 - el.parentElement.offsetTop - el.parentElement.offsetHeight / 2) / el.parentElement.offsetHeight
       const offset = (1 - pct) * 0.25 * (root.offsetWidth / 2)
       if (direction === 'lhs') {
-        x1 = x1 - root.offsetWidth / 10 - offset
+        x1 = x1 - root.offsetWidth / 10
       } else {
-        x1 = x1 + root.offsetWidth / 10 + offset
+        x1 = x1 + root.offsetWidth / 10
       }
-      mainPath = generateMainLine1({ x1, y1, x2, y2 })
+      mainPath = generateSubLine1({
+        pT: y1,
+        pL: x1,
+        pW: root.offsetWidth,
+        pH: root.offsetHeight,
+        cT: offsetTop + (i - mainNodeList.length / 2) / 10,
+        cL: offsetLeft,
+        cW: p.offsetWidth,
+        cH: p.offsetHeight,
+        direction,
+        isFirst: false,
+      })
     }
     this.lines.appendChild(createMainPath(mainPath, branchColor))
 
@@ -107,7 +130,7 @@ const linkDiv = function (this: MindElixirInstance, mainNode?: Wrapper) {
       el.appendChild(svg)
       const parent = el.firstChild
       const children = el.children[1].children
-      const path = traverseChildren(children, parent, direction, true)
+      const path = traverseChildren(children, parent, direction, false)
       svg.appendChild(createPath(path, branchColor))
     }
   }

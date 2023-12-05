@@ -34,17 +34,27 @@ export default function (mind: MindElixirInstance, option: any) {
   const menuUl = document.createElement('ul')
   menuUl.className = 'menu-list'
   menuUl.appendChild(add_child)
-  menuUl.appendChild(add_parent)
-  menuUl.appendChild(add_sibling)
   menuUl.appendChild(remove_child)
+  if (option && option.ctxAddParent) {
+    menuUl.appendChild(add_parent)
+  }
+  if (option && option.ctxAddSibling) {
+    menuUl.appendChild(add_sibling)
+  }
   if (!option || option.focus) {
     menuUl.appendChild(focus)
     menuUl.appendChild(unfocus)
   }
-  menuUl.appendChild(up)
-  menuUl.appendChild(down)
-  menuUl.appendChild(summary)
-  if (!option || option.link) {
+  if (!option || option.ctxUp) {
+    menuUl.appendChild(up)
+  }
+  if (option && option.ctxDown) {
+    menuUl.appendChild(down)
+  }
+  if (option && option.ctxDown) {
+    menuUl.appendChild(summary)
+  }
+  if (option && option.link) {
     menuUl.appendChild(link)
   }
   if (option && option.extend) {

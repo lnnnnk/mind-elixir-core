@@ -10,7 +10,7 @@ export const createMainPath = function (d: string, color: string) {
   path.setAttribute('d', d)
   path.setAttribute('stroke', color || '#666')
   path.setAttribute('fill', 'none')
-  path.setAttribute('stroke-width', '3')
+  path.setAttribute('stroke-width', '2')
   return path
 }
 
